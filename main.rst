@@ -323,11 +323,11 @@ We can then write down the gradient-adjoint-dot operator of the window
 
 .. math::
 
-    \Psi[B, p, q, A]_p(v)_{(i,a)} = \sum_j \frac{\partial W(p^i, q^j)}{\partial p^i_a} A_i v_j ,
+    \Psi[B, \{p, q, A\}]_p(v)_{(i,a)} = \sum_j \frac{\partial W(p^i, q^j)}{\partial p^i_a} A_i v_j ,
 
-    \Psi[B, p, q, A]_q(v)_{(j,a)} = \sum_i \frac{\partial W(p^i, q^j)}{\partial q^j_a} A_i v_j ,
+    \Psi[B, \{p, q, A\}]_q(v)_{(j,a)} = \sum_i \frac{\partial W(p^i, q^j)}{\partial q^j_a} A_i v_j ,
 
-    \Psi[B, p, q, A]_A(v)_i =  \sum_j W(p^i - q^j) v_j .
+    \Psi[B, \{p, q, A\}]_A(v)_i =  \sum_j W(p^i - q^j) v_j .
 
 The first gradient corresponds to the displacement of the source. The second gradient corresponds to
 the displacment of the destination. The third gradient corresponds to the evolution of the field.
