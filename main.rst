@@ -25,7 +25,7 @@ where :math:`x` is the unknown initial condition, and :math:`y` is the observati
 of the universe. At the resolution we can currently probe, :math:`S` is determined mostly by gravity. 
 
 
-We must realize two difficulties of the problem:
+We must realize three difficulties of the problem:
 
 1. The observation comes with noise; there is also uncertainty in the forward model :math:`S`. For a noisy inversion problem,
 can be written as an optimization problem,
