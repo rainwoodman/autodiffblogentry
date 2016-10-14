@@ -144,9 +144,9 @@ Applying chain rule to :math:`\nabla F`, we find that
 .. math::
 
     \nabla_j F = \frac{\partial F}{\partial r^0_j} = 
-        \left[\Pi_{i=1, n} \frac{\partial f^i}{\partial r^{i-1}}\right]_j ,
+        \left[\prod_{i=1, n} \frac{\partial f^i}{\partial r^{i-1}}\right]_j ,
 
-where :math:`\Pi` represents tensor product on the corresponding dimension.
+where :math:`\prod` represents tensor product on the corresponding dimension.
 (known as the Einstein summation rule, c.f. `numpy.einsum`)
 An automatic differentation software constructs and evaluates this long tensor product expression for us.
 
@@ -301,7 +301,7 @@ cloud-in-cell window, which represents a linear interpolation:
 
 .. math::
 
-    W(x, y) = \Pi_{a} (1 - h^{-1}\left|x_a - y_a\right|) ,
+    W(x, y) = \prod_{a} (1 - h^{-1}\left|x_a - y_a\right|) ,
 
 for a given size of the window :math:`h`.
 
@@ -310,14 +310,14 @@ a scalar function :math:`W_1`,
 
 .. math::
 
-    W(x, y) = \Pi_{a} W_1(\left|x_a - y_a\right|),
+    W(x, y) = \prod_{a} W_1(\left|x_a - y_a\right|),
 
 For these windows,
 
 .. math::
 
     \frac{\partial W}{\partial x_a} = \frac{\partial W}{\partial y_a} = 
-    W_1^\prime(\left|x_a - y_a\right|) \Pi_{b \neq a} W1(\left|x_b - y_b\right|) .
+    W_1^\prime(\left|x_a - y_a\right|) \prod_{b \neq a} W1(\left|x_b - y_b\right|) .
 
 We can then write down the gradient-adjoint-dot operator of the window
 
