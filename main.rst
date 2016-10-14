@@ -132,14 +132,13 @@ Applying chain rule to :math:`\nabla F`, we find that
     \nabla_j F = \frac{\partial F}{\partial r^0_j} = 
         \left[\Pi_{i=1, n} \frac{\partial f^i}{\partial r^{i-1}}\right]_j
 
-where :math:`\Pi` represents tensor contractions on the corresponding dimension.
+where :math:`\Pi` represents tensor product on the corresponding dimension.
 (known as the Einstein summation rule, c.f. `numpy.einsum`)
 
-Automatic differentation software evaluates this expression for us.
-The optimal evaluation is still a open question.
-
-We will look at two popularly used schemes, the `reverse accumulation/backpropagation` scheme and
-the `forward accumulation` scheme. Both are described in the Wikipedia entry of Automatic Differentiation.
+An automatic differentation software evaluates this long tensor product expression for us. There are many ways
+to evaluate this expression.
+We will look at two popular schemes, the `reverse accumulation/backpropagation` scheme and
+the `forward accumulation` scheme. Both are described in the Wikipedia entry of `Automatic Differentiation <https://en.wikipedia.org/wiki/Automatic_differentiation>`_.
 
 Here will will motivate these schemes slightly differently, by defining two different types of functional operators.
 
