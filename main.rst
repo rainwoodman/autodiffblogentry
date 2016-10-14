@@ -107,7 +107,7 @@ Let's now consider a scalar that comes from nested evaluation of :math:`n` funct
 
     F(x) := \left(f^1 \odot \cdots \odot f^n \right)(x) = f^n(f^{n-1}(\cdots (f^1(x)) \cdots ))) .
 
-We note that :math:`f^i` maps to real problems:
+:math:`f^i` maps to concepts in real world problems:
 
 - as a time step in a dynamical system; then the nested functions are simply evolving the dyanmical system forward in time.
 
