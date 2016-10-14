@@ -73,12 +73,13 @@ Popular optimization algorithms (e.g. Gradient Descent -- the only embeded optim
 in the cosmic initial condition problem) operate on the evaluation of the gradient.
 
 A large landscape of AD beyond deep learning is in the context of inversion of dynamical systems.
-Many of physical problems are solutions to time evolution of differential equations,
-including the evolution of the Universe, the atomsphere and ocean (weather / climate forecasting), space travelling (orbits).
-The solution to these equations can be written as the product of a sequence of evolution operators (nested function evaluations), where
-AD is applied to evaluate the gradients.
+Many physical problems can be written as solutions to time evolution of differential equations,
+including, for example,  the evolution of the Universe, the atomsphere and ocean (weather / climate forecasting),
+and space travelling (orbits).
+The solution to these equations can be written as the product of a sequence of evolution operators (nested function evaluations).
+Then AD can be applied to evaluate the gradients.
 In these problems, AD is usually tailored to a specialized form that suits to the particular system.
-A generic AD software is not in general used. (c.f. Sengupta et al. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/)
+A generic AD software is not used. (c.f. Sengupta et al. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/)
 
 De-mysterifying AD
 ------------------
