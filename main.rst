@@ -1,18 +1,20 @@
-Automatic Differentiation in Cosmology Simulation
-=================================================
+Automatic Differentiation and Cosmology Simulation
+==================================================
 
-One project at Berkeley Center for Cosmological Physics is to study the 
+One project at `Berkeley Center for Cosmological Physics <http://bccp.berkley.edu>`_ is to study the 
 recovery the cosmic initial condition from observations of the later time universe.
 
 Cosmic initial condition is the density fluctuation of the universe about 13.7 billion years ago,
 when the main form of energy in the universe was still dominated by the cosmic microwave background (CMB).
-Due to the finite speed of light, any direct measurements of the CMB, 
+Due to the finite speed of light, any direct measurements of the `CMB <https://en.wikipedia.org/wiki/Cosmic_microwave_background>`_, 
 including space based programs such as Planck, WMAP and COBE, and ground based programs such as ACT-Pole, PolarBear, 
 can only observe a thin slice of cosmic initial condition.
-For the rest of Universe, we are only able to observe an evolved state: the close to us, the older the Universe we observe
-has grown to.
+For the rest of Universe, we are only able to observe an evolved state. The close to us, the older the Universe we observe
+has grown to. The data about the latest universe usually comes as a catalogue of galaxies. (e.g. `Malavasi et al. <https://arxiv.org/abs/1509.08964>`_)
+The slightly older universe was captured by the measurements of Lyman-alpha Forest. (e.g. `Lee et al. <https://arxiv.org/abs/1409.5632>`_.)
+Gravitational lensing measures a projected view along the line of sight direction. (e.g. `Amara et al. <https://arxiv.org/abs/1205.1064>`_)
 
-The recovery of the full cosmic initial condition is thus an inversion problem, which reverts the time evolution from the observed
+The recovery of the full cosmic initial condition is an inversion problem, which reverts the time evolution from the observed
 field :math:`y`,
 
 .. math::
