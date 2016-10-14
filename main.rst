@@ -1,23 +1,23 @@
-Automatic Differentiation and Cosmic Initial Condition
-======================================================
+Automatic Differentiation in Cosmology Simulation
+=================================================
 
 One project at Berkeley Center for Cosmological Physics is to study the 
 recovery the cosmic initial condition from observations of the later time universe.
 
 Cosmic initial condition is the density fluctuation of the universe about 13.7 billion years ago,
 when the main form of energy in the universe was still dominated by the cosmic microwave background (CMB).
-
 Due to the finite speed of light, any direct measurements of the CMB, 
 including space based programs such as Planck, WMAP and COBE, and ground based programs such as ACT-Pole, PolarBear, 
 can only observe a thin slice of cosmic initial condition.
-
 For the rest of Universe, we are only able to observe an evolved state: the close to us, the older the Universe we observe
 has grown to.
-The recovery of the full cosmic initial condition is thus an inversion problem:
+
+The recovery of the full cosmic initial condition is thus an inversion problem, which reverts the time evolution from the observed
+field :math:`y`,
 
 .. math::
 
-    x = S^{-1}(y) .
+    x = S^{-1}(y) ,
 
 where :math:`x` is the unknown initial condition, and :math:`y` is the observation. :math:`S` is the dynamical model
 of the universe. At the resolution we can currently probe, :math:`S` is determined mostly by gravity. 
@@ -34,7 +34,8 @@ can be written as an optimization problem,
 
 where :math:`\sigma` quantifies the level of noise.
 
-The solution :math:`x=\hat{x}` is our best estimate of the cosmic initial condition.
+The solution :math:`x=\hat{x}` is our best estimate of the cosmic initial condition. There are ways of deriving the uncertainty
+of :math:`\hat{x}`.
 
 2. It has a very large dimensionality. :math:`x` and :math:`y` are fields defined on a 3-dimenional space. 
 For example a mesh of :math:`128^3` points, the number of elements in the vectors :math:`x` and :math:`y` become millions.
@@ -43,45 +44,54 @@ For example a mesh of :math:`128^3` points, the number of elements in the vector
 We use ordienary differential equation (ODE) solvers to follow the evolution of the structure.
 A particular simple family of solvers that are frequently used in cosmology are Particle-Mesh solvers.
 We refer the readers to the classical book
-`Computer Simulation Using Particles <http://dl.acm.org/citation.cfm?id=62815>` by Hockney and Eastwood for further references.
+`Computer Simulation Using Particles <http://dl.acm.org/citation.cfm?id=62815>`_ by Hockney and Eastwood for further references.
 We therefore a facing a non-linear optimization problem in a high dimensional space.
 Gradient of the objective function :math:`\chi^2(x)` is a crucial ingredient for solving such problems.
 
 There are generic software tools (Automatic Differentiation software) to automatically evaluate the gradient of any function.
-We were hoping to use these generic software tools in our problem,
-and surveyed three packages, Tensorflow, Theono, and autograd. Unfortunately we find all three of them
-lacking the elements to describe our Particle Mesh solver.
+We were hoping to use these generic software tools in our problem.
+We surveyed three packages, `Tensorflow <https://www.tensorflow.org/>`_, `Theono <http://deeplearning.net/software/theano/>`_,
+and `autograd <https://github.com/HIPS/autograd>`_.
+The landscape was of quite a bit of misery when we try to build a Particle Mesh solver out of these packages:
+we find all three of them lacking the elements to describe our Particle Mesh solver.
 
-This motivates the writing of this blog. 
-We will first make an attempt to define the useful gradient related operators in `Automatic Differentiation`,
-and then write down the formula of gradients of the two most relevant missing operators in a Particle-Mesh solver:
-discrete fourier transform and resampling window operator.
+This motivates the writing of this blog.
+We will review the mechanism how automatic differentiation works.
+Next, we will build the gradient operators that are useful in a Particle-Mesh solver.
+In the long term, we would like to patch the generic AD software packages to include these operators.
 
 Automatic Differentiation
 -------------------------
 
-A few month ago at the 2016 AstroHackWeek in Berkeley,
-the attendees organized a special session to explore the landscape of automatic differentiation software.
-This blog was partially inspired by the discussion.
-Automatic Differentiation (AD) is a relatively new technology in astronomy and cosmology inspite of
-the growing popularity in the ourside world.
+Automatic Differentiation (AD) is a relatively new technology to the audience in astronomy and cosmology inspite of
+the growing popularity in machine learning. At the `2016 AstroHackWeek <http://astrohackweek.org/2016/>`_,
+the attendees organized a session to explore the landscape of automatic differentiation software. One idea was that 
+we shall try to AD more in astronomy if we are to define the boundary of the technology.
+This blog was partially inspired by the discussion amongst the astronomers during that session.
 
-The recent popularity of AD is partially due to the movement of deep learning.
+The recent tide of popularity of AD is partially due to the movement of deep learning.
 Training large neural networks demand effective and efficient optimization algorithms, because
-the dimenionality of the problem (number of neural nodes) are huge.
+the dimenionality of the problem (number of neural nodes) is large.
 Popular optimization algorithms (e.g. Gradient Descent -- the only embeded optimizer in TensorFlow, or L-BFGS which we use
-in the cosmic initial condition problem) operate on the evaluation of the gradient.
+in the cosmic initial condition problem) demands the evaluation of the gradient.
 
 A large landscape of AD beyond deep learning is in the context of inversion of dynamical systems.
-Many physical problems can be written as solutions to time evolution of differential equations,
-including, for example, the evolution of the Universe, the atomsphere and ocean (weather / climate forecasting),
-and orbits of planets and rockets.
-The solution to these equations can be written as the product of a sequence of evolution operators (nested function evaluations).
-Then AD can be applied to evaluate the gradient of the final condition regarding to the intial condition.
+Many physical problems can be written as solutions of a time evolution of differential equations.
+The solution to these equations can be written as the product of a sequence of evolution operators
+(nested function evaluations).
+AD can be applied to evaluate the gradient of the final condition regarding to the intial condition, which is also called
+`sensitivity analysis` in this context. 
+Due to the complicity of the problem, AD in inversion problems is
+usually tailored to a specialized form that suits to the particular dynamical system.
+(c.f. `Sengupta et al. <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/>`_).
+In these problems, however, a generic AD software is not used,
+because it usually does not implement the necessary operators, and it also fails to recognize shortcuts, or optimizations in
+the evaluation sequence.
 
-Due to the complicity of the problem, AD is usually tailored to a specialized form that suits to the particular system.
-(c.f. Sengupta et al. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/).
-A generic AD software is not used because it lacks the necessary operators; this is the problem we are facing.
+We indeed ran into these problems as we attempt to apply generic AD software to particle-mesh simulations. If we believe optimization
+are secondary, the the first problem becomes the primary barrier. For particle-mesh simulations, we need the AD software to
+support discrete fourier transforms and window resampling operations. We will try to bridge the gap, but shall first revisit
+what AD actually does.
 
 De-mysterifying AD
 ------------------
@@ -94,12 +104,12 @@ De-mysterifying AD
 
 The basics of AD start from the chain-rule of differentiation, which claims that
 
-If we have two functions :math:`y=f(x)` and :math:`z=g(y)=g(f(x))`, then
+    If we have two functions :math:`y=f(x)` and :math:`z=g(y)=g(f(x))`, then
 
-.. math::
+    .. math::
 
-    \frac{\partial z_j }{\partial x_i} = \sum_k \frac{\partial z_j}{\partial y_k} \frac{\partial y_k}{\partial x_i}
-                        = \frac{\partial z_j}{\partial y_k} \cdot \frac{\partial y_k}{\partial x_i}
+        \frac{\partial z_j }{\partial x_i} = \sum_k \frac{\partial z_j}{\partial y_k} \frac{\partial y_k}{\partial x_i}
+                            = \frac{\partial z_j}{\partial y_k} \cdot \frac{\partial y_k}{\partial x_i} .
 
 We see that the chain-rule converts gradient of nested functions to a sequence of tensor products.
 
@@ -119,11 +129,11 @@ We shall name the intemediate variables :math:`r^{(i)}`,
 
 .. math::
 
-    r^n = F(x)
+    r^n = F(x) ,
 
-    r^i = f^i(r^{i-1})
+    r^i = f^i(r^{i-1}) ,
 
-    r^0 = x
+    r^0 = x .
 
 This function is illustrated in the `function evaluation` section of the figure.
 
@@ -132,7 +142,7 @@ Applying chain rule to :math:`\nabla F`, we find that
 .. math::
 
     \nabla_j F = \frac{\partial F}{\partial r^0_j} = 
-        \left[\Pi_{i=1, n} \frac{\partial f^i}{\partial r^{i-1}}\right]_j
+        \left[\Pi_{i=1, n} \frac{\partial f^i}{\partial r^{i-1}}\right]_j ,
 
 where :math:`\Pi` represents tensor product on the corresponding dimension.
 (known as the Einstein summation rule, c.f. `numpy.einsum`)
@@ -142,7 +152,7 @@ There are many ways to evaluate this expression.
 We will look at two popular schemes, the `reverse accumulation/backpropagation` scheme and
 the `forward accumulation` scheme. Both are described in the Wikipedia entry of `Automatic Differentiation <https://en.wikipedia.org/wiki/Automatic_differentiation>`_.
 
-Here will will motivate these schemes slightly differently, by defining two different types of functional operators.
+Here will will motivate these schemes by defining two different types of functional operators.
 
 Backward
 ++++++++
@@ -151,18 +161,18 @@ For a function `f` defined on the domain :math:`f : X \to Y`, we define gradient
 
 .. math::
 
-    \Psi[f](v) = \sum_i v_i \frac{\partial f_i}{\partial x_j}
+    \Psi[f, x](v) = \sum_i v_i \frac{\partial f_i}{\partial x_j} .
 
-It is implied that :math:`v \in Y` and the domain of :math:`\Psi[f]` is :math:`\Psi[f] : Y \to X`.
+It is implied that :math:`v \in Y` and the domain of :math:`\Psi[f, x]` is :math:`\Psi[f, x] : Y \to X`.
 
 Notice how the summation eliminate the indexing of the function; while the indexing for the gradient remains.
 
-Using :math:`\Psi^i = \Psi[f^i]`, the chain-rule above can be reorganized as a sequence of function evaluations
+Using :math:`\Psi^i = \Psi[f^i, r^i]`, the chain-rule above can be reorganized as a sequence of function evaluations
 of :math:`\Psi^i`
 
 .. math::
 
-    \nabla F_j = (\Psi^1 \cdots (\Psi^{n-1}(\nabla_j f^n))\cdots)_j
+    \nabla F_j = (\Psi^1 \cdots (\Psi^{n-1}(\nabla_j f^n))\cdots)_j .
 
 The process is illustrated in Section `backpropagation` of the figure. 
 We see that at each evaluation of :math:`\Psi^i`, we
@@ -173,12 +183,14 @@ this method is called the `backward propagation` or `reverse accumulation`.
 This method is also called `adjoint method` in the analysis of dynamical systems, because the summation is along the `adjoint`
 index of the jacobian :math:`\frac{\partial f_i}{\partial x_j}`.
 The main drawback of backpropagation is
-that it requires one to store the intemediate results of along the line in order to compute the gradient-adjoint-dot operator.
+that it requires one to store the intemediate results along the function evaluation in order to compute the
+gradient-adjoint-dot operators.
 However, the method gives the full gradient against the free variables `x_j` after one full accumulation, making it at advantage
 in certain problems than the `forward accumulation` we will describe next.
 
-Most popular automatic differentiation software packages (TensorFlow, Theono, or autograd) implements the
-gradient-adjoint-dot operator as the gradient element of supported functions.
+In all three automatic differentiation software packages we checked (TensorFlow, Theono, or autograd), a method of
+looking up the the gradient-adjoint-dot operator is provided; either as a member of the operator entity or as an external
+dictionary.
 
 
 Forward
@@ -188,18 +200,18 @@ In contrast, we can define an gradient-dot operator,
 
 .. math::
 
-    \Gamma[f](u) = \sum_j \frac{\partial f_i}{\partial x_j} u_{j}.
+    \Gamma[f, x](u) = \sum_j \frac{\partial f_i}{\partial x_j} u_{j} .
 
-It is implied that :math:`u \in X` and the domain of :math:`\Gamma[f]` is :math:`\Gamma[f] : X \to Y`.
+It is implied that :math:`u \in X` and the domain of :math:`\Gamma[f, x]` is :math:`\Gamma[f, x] : X \to Y`.
 
 Notice the summation is over the indexing of the free variable, :math:`x_j`. Hence the name does not have `adjoint` like the previous
 operator. One way to think of :math:`\Gamma[f]` is that it rotates :math:`u` by the jacobian.
 
-With the gradient-dot operator of :math:`\Gamma^i = \Gamma[f^i]`, we can write down the `forward accumulation` rule of AD:
+With the gradient-dot operator of :math:`\Gamma^i = \Gamma[f^i, r^i]`, we can write down the `forward accumulation` rule of AD:
 
 .. math::
 
-    \sum_j \nabla_j F u_j = \Gamma^n (\cdots (\Gamma^1(u)) \cdots)
+    \sum_j \nabla_j F u_j = \Gamma^n (\cdots (\Gamma^1(u)) \cdots) .
 
 This process is illustrated in the `Forward accumulation` section of the figure.
 We see that at each evaluation of :math:`\Gamma^i`, we obtain the directional
@@ -236,7 +248,7 @@ in this blog. The gradient that is conveniently used is
 
 .. math::
 
-    \nabla_z = \frac{\partial}{\partial x} + \imath \frac{\partial}{\partial y}
+    \nabla_z = \frac{\partial}{\partial x} + \imath \frac{\partial}{\partial y} ,
 
 for :math:`z = x + \imath y`. It is related to the Wirtinger derivatives (Fourier transform is a harmonic function).
 
@@ -245,27 +257,29 @@ is its dual transform. Specifically,
 
 .. math::
 
-    \Psi[\mathrm{fft}](V) = \mathrm{ifft}(V)
+    \Psi[\mathrm{fft}, X](V) = \mathrm{ifft}(V) ,
 
-    \Psi[\mathrm{rfft}](V) = \mathrm{irfft}(V)
+    \Psi[\mathrm{rfft}, X](V) = \mathrm{irfft}(V) ,
 
-    \Psi[\mathrm{ifft}](V) = \mathrm{fft}(V)
+    \Psi[\mathrm{ifft}, Y](V) = \mathrm{fft}(V) ,
 
-    \Psi[\mathrm{irfft}](V)_j = \left\{
+    \Psi[\mathrm{irfft}, Y](V)_j = \left\{
                 \begin{matrix}
                         \mathrm{rfft}(V)_j & \mathrm{ if } j = N - j, \\
                             2 \mathrm{rfft}(V) & \mathrm{ if } j \neq N - j.
                 \end{matrix} \right.
 
 
-where :math:`\Psi` is the gradient-adjoint-dot operator. Notably, the free variable `X` do not show up in the 
-final expressions. This is because Fourier transforms are linear operators. We also notice that the gradient of
+where :math:`\Psi` is the gradient-adjoint-dot operator. Notably, the free variables :math:`X` and :math:`Y`
+do not show up in the final expressions.
+This is because Fourier transforms are linear operators. We also notice that the gradient of
 complex to real transform has an additional factor of 2 for most modes.
 This is because the hermitian conjugate frequency mode also contributes to the gradient.
 
 The complex version of Discrete Fourier Transform is implemented in TensorFlow (GPU only), Theono, and autograd. Though
-it appears the version in autograd is incorrect. The real-complex transforms 
-are not implemented in any of the packages.
+it appears the version in autograd is incorrect. The real-complex transforms (rfft and irfft)
+are not implemented in any of the packages. We use the real-complex transforms in the particle-mesh solvers,
+to properly capture the hermitian property of the fourier modes of the density field, which is a real valued field.
 
 Resampling Windows
 ++++++++++++++++++
@@ -275,16 +289,17 @@ It is written as
 
 .. math::
 
-    B_j(p, q, A) = \sum_i W(p^i, q^j) A_i
+    B_j(p, q, A) = \sum_i W(p^i, q^j) A_i ,
 
-where :math:`p^i` is the position of `i`-th particle/grid point and :math:`q^j` is the position
-of `j`-th particle/grid point; both are usually vectors themselves (the universe has 3 spatial dimensions).
+where :math:`p^i` is the position of `i`-th particle/mesh point and :math:`q^j` is the position
+of `j`-th mesh/particle point; both are usually vectors themselves (the universe has 3 spatial dimensions).
+
 :math:`W` is the resampling window function. A popular form is the
-cloud in cell window, which represents a linear interpolation:
+cloud-in-cell window, which represents a linear interpolation:
 
 .. math::
 
-    W(x, y) = \Pi_{a} (1 - h^{-1}\left|x_a - y_a\right|)
+    W(x, y) = \Pi_{a} (1 - h^{-1}\left|x_a - y_a\right|) ,
 
 for a given size of the window :math:`h`.
 
@@ -300,17 +315,17 @@ For these windows,
 .. math::
 
     \frac{\partial W}{\partial x_a} = \frac{\partial W}{\partial y_a} = 
-    W_1^\prime(\left|x_a - y_a\right|) \Pi_{b \neq a} W1(\left|x_b - y_b\right|) 
+    W_1^\prime(\left|x_a - y_a\right|) \Pi_{b \neq a} W1(\left|x_b - y_b\right|) .
 
 We can then write down the gradient-adjoint-dot operator of the window
 
 .. math::
 
-    \Psi[B, p](v)_{(i,a)} = \sum_j \frac{\partial W(p^i, q^j)}{\partial p^i_a} A_i v_j
+    \Psi[B, p, q, A]_p(v)_{(i,a)} = \sum_j \frac{\partial W(p^i, q^j)}{\partial p^i_a} A_i v_j ,
 
-    \Psi[B, q](v)_{(j,a)} = \sum_i \frac{\partial W(p^i, q^j)}{\partial q^j_a} A_i v_j
+    \Psi[B, p, q, A]_q(v)_{(j,a)} = \sum_i \frac{\partial W(p^i, q^j)}{\partial q^j_a} A_i v_j ,
 
-    \Psi[B, A](v)_i =  \sum_j W(p^i - q^j) v_j
+    \Psi[B, p, q, A]_A(v)_i =  \sum_j W(p^i - q^j) v_j .
 
 The first gradient corresponds to the displacement of the source. The second gradient corresponds to
 the displacment of the destination. The third gradient corresponds to the evolution of the field.
@@ -318,6 +333,8 @@ Usually in a particle mesh simulation, either one of the source and the destinat
 the corresponding gradient vanishes.
 
 They are a bit complicated because we need to loop of the spatial dimension index :math:`a`.
+It is possible to extend these expressions to Smoothed Particle Hydrodynamics if one allow :math:`h` to be a free variable
+as well.
 
 Unlike the partial support of Fourier Transforms, none of the three packages we surveyed
 (TensorFlow, Theono and autograd) recognizes these resampling window operators.
