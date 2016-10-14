@@ -13,8 +13,10 @@ when the main form of energy in the universe was still dominated by the cosmic m
 Due to the finite speed of light, any direct measurements of the `CMB <https://en.wikipedia.org/wiki/Cosmic_microwave_background>`_, 
 including space based programs such as Planck, WMAP and COBE, and ground based programs such as ACT-Pole, PolarBear, 
 can only observe a thin slice of cosmic initial condition.
-For the rest of Universe, we are only able to observe an evolved state. The close to us, the older the Universe we observe
-has grown to. The data about the latest universe usually comes as a catalogue of galaxies. (e.g. `Malavasi et al. <https://arxiv.org/abs/1509.08964>`_)
+For the rest of Universe, we are only able to observe an evolved state. The close to us, the older the observed Universe
+has grown to.
+
+The data about the latest universe usually comes as a catalogue of galaxies. (e.g. `Malavasi et al. <https://arxiv.org/abs/1509.08964>`_)
 The slightly older universe was captured by the measurements of Lyman-alpha Forest. (e.g. `Lee et al. <https://arxiv.org/abs/1409.5632>`_.)
 Gravitational lensing measures a projected view along the line of sight direction. (e.g. `Amara et al. <https://arxiv.org/abs/1205.1064>`_)
 
