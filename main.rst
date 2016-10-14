@@ -186,7 +186,7 @@ This method is also called `adjoint method` in the analysis of dynamical systems
 index of the jacobian :math:`\frac{\partial f_i}{\partial x_j}`.
 The main drawback of backpropagation is
 that it requires one to store the intemediate results along the function evaluation in order to compute the
-gradient-adjoint-dot operators.
+gradient-adjoint-dot operators: :math:`\Psi^i` depends on :math:`r^i` which needs to be evaluated before the backpropagation.
 However, the method gives the full gradient against the free variables `x_j` after one full accumulation, making it at advantage
 in certain problems than the `forward accumulation` we will describe next.
 
@@ -221,7 +221,8 @@ derivative of :math:`r^i` along :math:`u`, :math:`\sum \frac{\partial r^i}{\part
 order of :math:`i`, making the name `forward accumulation` a suitable one.
 
 The advantage of forward accumulation is that one can evaluate the gradient as the function :math:`F` is evaluated, and no intemediate
-results need to be saved. This is clearly a useful feature when the number of nesting (layers of neural network or number of time steps)
+results need to be saved: we see that when :math:`\Gamma^i` is requests, :math:`r_i` is already evaluated.
+This is clearly a useful feature when the number of nesting (layers of neural network or number of time steps)
 is high.
 However, the cost is we can only obtained a directional derivative. In some applications it is useful (e.g. computing Hession for Newton-CG or trust-region
 Newton-CG methods). When the full gradient is desired, one need to run
