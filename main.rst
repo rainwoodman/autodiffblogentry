@@ -341,5 +341,5 @@ as well.
 
 Unlike the partial support of Fourier Transforms, none of the three packages we surveyed
 (TensorFlow, Theono and autograd) recognizes these resampling window operators.
-Fully implementing these operators will remove the final barrier between a generic AD software
-and our cosmic initial condition problem.
+Fully implementing these operators will remove the main barrier between a generic AD software
+our cosmic initial condition problem.
