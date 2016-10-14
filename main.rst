@@ -25,46 +25,46 @@ of the universe. At the resolution we can currently probe, :math:`S` is determin
 
 We must realize two difficulties of the problem:
 
-1. The observation comes with noise; there is also uncertainty in the forward model :math:`S`. We therefore restate the problem
-as an optimization problem,
+1. The observation comes with noise; there is also uncertainty in the forward model :math:`S`. For a noisy inversion problem,
+can be written as an optimization problem,
 
 .. math::
 
-    \mathrm{ minimize}_{x = \hat{x}} \chi^2(x) = \left|\frac{S(x) - y}{\sigma}\right|^2
+    \mathrm{ minimize}_{x = \hat{x}} \chi^2(x) = \left|\frac{S(x) - y}{\sigma}\right|^2 ,
+
+where :math:`\sigma` quantifies the level of noise.
 
 The solution :math:`x=\hat{x}` is our best estimate of the cosmic initial condition.
 
-2. It has a very large dimensionality. :math:`x` and :math:`y` are fields defined on a 3-dimenional space.
-For even moderate resolution, for example a mesh of :math:`128^3` points, the total number of elements become millions.
+2. It has a very large dimensionality. :math:`x` and :math:`y` are fields defined on a 3-dimenional space. 
+For example a mesh of :math:`128^3` points, the number of elements in the vectors :math:`x` and :math:`y` become millions.
 
-3. The model of structure formation, :math:`S` is nonlinear, and non-perturbative. We use
-ordienary differential equation (ODE) solvers to follow the generative modelling function
-:math:`S(x)`. A particular simple family of solvers are Particle-Mesh solvers, we refer the readers to the classical book
-Computer Simulation Using Particles by Hockney and Eastwood for further references.
+3. The model of structure formation (:math:`S`) is nonlinear, and becomes non-perturbative quickly as the resolution increases.
+We use ordienary differential equation (ODE) solvers to follow the evolution of the structure.
+A particular simple family of solvers that are frequently used in cosmology are Particle-Mesh solvers.
+We refer the readers to the classical book
+`Computer Simulation Using Particles <http://dl.acm.org/citation.cfm?id=62815>` by Hockney and Eastwood for further references.
+We therefore a facing a non-linear optimization problem in a high dimensional space.
+Gradient of the objective function :math:`\chi^2(x)` is a crucial ingredient for solving such problems.
 
-For an non-linear optimization problem of high dimension, we need to
-use the gradient information of the objective function :math:`\chi^2(x)`. 
-
-There are generic software tools to automatically evaluate the gradient of any function. We were hoping to use these
-generic software tools in our problem,
+There are generic software tools (Automatic Differentiation software) to automatically evaluate the gradient of any function.
+We were hoping to use these generic software tools in our problem,
 and surveyed three packages, Tensorflow, Theono, and autograd. Unfortunately we find all three of them
-lacking the elements to describe our ODE solver (particle mesh solver).
+lacking the elements to describe our Particle Mesh solver.
 
-Therefore, in this blog entry, we will discuss and derive the missing pieces.
+This motivates the writing of this blog. 
 We will first make an attempt to define the useful gradient related operators in `Automatic Differentiation`,
-before listing the two most relevant missing operators, discrete fourier transform and resampling that are used
-in the Particle-Mesh solver we use.
-
-Interested parties can implement them to
-existing automatic differential packages to make them readily useful to a wider audience.
+and then write down the formula of gradients of the two most relevant missing operators in a Particle-Mesh solver:
+discrete fourier transform and resampling window operator.
 
 Automatic Differentiation
 -------------------------
 
-Automatic Differentiation (AD) has been the buzz word in recent years. 
-It is a relatively new technology in astronomy: a few month ago at the 2016 AstroHackWeek
-in Berkeley, the attendees organized a special session to explore the landscape of automatic differentiation software.
+A few month ago at the 2016 AstroHackWeek in Berkeley,
+the attendees organized a special session to explore the landscape of automatic differentiation software.
 This blog was partially inspired by the discussion.
+Automatic Differentiation (AD) is a relatively new technology in astronomy and cosmology inspite of
+the growing popularity in the ourside world.
 
 The recent popularity of AD is partially due to the movement of deep learning.
 Training large neural networks demand effective and efficient optimization algorithms, because
@@ -74,12 +74,14 @@ in the cosmic initial condition problem) operate on the evaluation of the gradie
 
 A large landscape of AD beyond deep learning is in the context of inversion of dynamical systems.
 Many physical problems can be written as solutions to time evolution of differential equations,
-including, for example,  the evolution of the Universe, the atomsphere and ocean (weather / climate forecasting),
-and space travelling (orbits).
+including, for example, the evolution of the Universe, the atomsphere and ocean (weather / climate forecasting),
+and orbits of planets and rockets.
 The solution to these equations can be written as the product of a sequence of evolution operators (nested function evaluations).
-Then AD can be applied to evaluate the gradients.
-In these problems, AD is usually tailored to a specialized form that suits to the particular system.
-A generic AD software is not used. (c.f. Sengupta et al. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/)
+Then AD can be applied to evaluate the gradient of the final condition regarding to the intial condition.
+
+Due to the complicity of the problem, AD is usually tailored to a specialized form that suits to the particular system.
+(c.f. Sengupta et al. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/).
+A generic AD software is not used because it lacks the necessary operators; this is the problem we are facing.
 
 De-mysterifying AD
 ------------------
@@ -134,9 +136,9 @@ Applying chain rule to :math:`\nabla F`, we find that
 
 where :math:`\Pi` represents tensor product on the corresponding dimension.
 (known as the Einstein summation rule, c.f. `numpy.einsum`)
+An automatic differentation software constructs and evaluates this long tensor product expression for us.
 
-An automatic differentation software evaluates this long tensor product expression for us. There are many ways
-to evaluate this expression.
+There are many ways to evaluate this expression.
 We will look at two popular schemes, the `reverse accumulation/backpropagation` scheme and
 the `forward accumulation` scheme. Both are described in the Wikipedia entry of `Automatic Differentiation <https://en.wikipedia.org/wiki/Automatic_differentiation>`_.
 
@@ -319,5 +321,5 @@ They are a bit complicated because we need to loop of the spatial dimension inde
 
 Unlike the partial support of Fourier Transforms, none of the three packages we surveyed
 (TensorFlow, Theono and autograd) recognizes these resampling window operators.
-We are still a bit away from being able to implement our problem on top of existing generic AD software packages.
-
+Fully implementing these operators will remove the final barrier between a generic AD software
+and our cosmic initial condition problem.
