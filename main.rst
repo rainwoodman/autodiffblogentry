@@ -302,9 +302,13 @@ It is written as
 
 where :math:`p^i` is the position of `i`-th particle/mesh point and :math:`q^j` is the position
 of `j`-th mesh/particle point; both are usually vectors themselves (the universe has 3 spatial dimensions).
-When :math:`p^i` is the position of particles, and :math:`q^j` is the position of the mesh points,
-the operation is called a `paint`. When :math:`p^i` is the position of the mesh points and
-:math:`q^j` is the position of mesh points, the operation is called a `readout`.
+
+- `paint`: When :math:`p^i` is the position of particles,
+  and :math:`q^j` is the position of the mesh points,
+  the operation is called a `paint`.
+
+- `readout`: When :math:`p^i` is the position of the mesh points and
+  :math:`q^j` is the position of mesh points, the operation is called a `readout`.
 
 :math:`W` is the resampling window function. A popular form is the
 cloud-in-cell window, which represents a linear interpolation:
