@@ -53,7 +53,7 @@ We use ordinary differential equation (ODE) solvers to follow the evolution of t
 A particularly simple family of solvers that is frequently used in cosmology are particle-mesh solvers.
 We refer readers to the classical book
 `Computer Simulation Using Particles <http://dl.acm.org/citation.cfm?id=62815>`_ by Hockney and Eastwood for further reference.
-We are therefore a facing a non-linear optimization problem in a high-dimensional space.
+We are therefore facing a non-linear optimization problem in a high-dimensional space.
 The gradient of the objective function :math:`\chi^2(x)` is a crucial ingredient for solving such a problem.
 
 There are generic software tools (automatic differentiation software) to automatically evaluate the gradient of any function.
@@ -80,7 +80,7 @@ This blog was partially inspired by the discussion among the astronomers during 
 The recent popularity of AD is partially due to the movement of deep learning.
 Training large neural networks demands effective and efficient optimization algorithms because
 the dimensionality of the problem (number of neural nodes) is large.
-Popular optimization algorithms (e.g., gradient descent -- the only embedded optimizer in TensorFlow or L-BFGS, which we use
+Popular optimization algorithms (e.g., gradient descent -- the only embedded optimizer in TensorFlow -- or L-BFGS, which we use
 in the cosmic initial condition problem) demands evaluation of the gradient.
 
 A large portion of AD lies beyond deep learning in the context of inversion of dynamical systems.
@@ -92,17 +92,22 @@ AD can be applied to evaluate the gradient of the final condition in respect to 
 Due to the complicity of the problem, AD in inversion problems is
 usually tailored to a specialized form that suits the particular dynamical system
 (cf. `Sengupta et al. <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/>`_).
-In these problems, however, generic AD software cannot used
-because such software usually does not implement the necessary operators and also fail to recognize shortcuts, or optimizations, in
-the evaluation sequence.
+In these problems, however, generic AD software is not widely used
+because such software usually does not implement the necessary operators.
+Another issue is there is no universal fast algorithm to recognize shortcuts, or optimizations, in
+the evaluation sequence of AD.
 
-We ran into these problems when we attempted to apply generic AD software to particle-mesh simulations. If we believe optimization
-is secondary, the the first problem becomes the primary barrier. For particle-mesh simulations, we need the AD software to
-support Discrete Fourier Transforms and window resampling operations. We will try to bridge the gap but will first revisit
-what AD actually does.
+We ran into these problems when we attempted to apply generic AD software to particle-mesh simulations. 
+For particle-mesh simulations, we need the AD software to
+support Discrete Fourier Transforms and window resampling operations.
+
+In this article, we will try to bridge the gap by writing down these operators; we shall leave
+the problem of finding an optimal AD evaluation sequence for the future.
 
 De-Mysterifying AD
 ------------------
+
+We will first revisit what AD actually does. 
 
 .. figure:: autodiff-func.svg
     :width: 50%
@@ -249,11 +254,15 @@ Discrete Fourier Transform
 
 Discrete Fourier Transform is the discretized version of Fourier Transform.
 It is a commonly used density matrix operator in the modelling of physical process.
-This is mostly because finite differentiation can be written as multiplication
+This is mostly because spatial differentiation can be written as multiplication
 in the spectrum space.
 
-The gradients involve complex numbers, which are tuples of two real numbes. We therefore do not include a proof
-in this blog. The gradient that is conveniently used is
+.. math::
+
+    \nabla \phi (x) = \mathrm{ifft}(k \cdot \mathrm{fft}(\phi)(k))(x)
+
+The gradients involve complex numbers, which are tuples of two real numbes.
+The gradient that is conveniently used is
 
 .. math::
 
@@ -268,27 +277,55 @@ is its dual transform. Specifically,
 
     \Psi[\mathrm{fft}, X](V) = \mathrm{ifft}(V) ,
 
-    \Psi[\mathrm{rfft}, X](V) = \mathrm{irfft}(V) ,
-
     \Psi[\mathrm{ifft}, Y](V) = \mathrm{fft}(V) ,
-
-    \Psi[\mathrm{irfft}, Y](V)_j = \left\{
-                \begin{matrix}
-                        \mathrm{rfft}(V)_j & \mathrm{ if } j = N - j, \\
-                            2 \mathrm{rfft}(V) & \mathrm{ if } j \neq N - j.
-                \end{matrix} \right.
 
 
 where :math:`\Psi` is the gradient-adjoint-dot operator. Notably, the free variables :math:`X` and :math:`Y`
 do not show up in the final expressions.
-This is because Fourier transforms are linear operators. We also notice that the gradient of
-complex to real transform has an additional factor of 2 for most modes.
-This is because the hermitian conjugate frequency mode also contributes to the gradient.
+This is because Fourier transforms are linear operators. 
+
+We do not include a formal proof in this blog. (The proof is relatively simple)
+
+Gradients of the real fourier transforms (`ifft` and `irfft`) are slightly more complicated.
+Of the complex vector in a real fourier transform, only about half of the complex numbers are indepedent.
+The other half is the hermitian conjugates.
+(See `What FFTW really computes <http://www.fftw.org/doc/The-1d-Real_002ddata-DFT.html#The-1d-Real_002ddata-DFT>`_)
+
+Due to this hermitian property of the complex vector, `irfft` has two types of gradients:
+
+- gradient over the full complex vector, which follows the same rules as the complex fourier transform
+
+  .. math::
+
+    \Psi[\mathrm{rfft}, X](V) = \mathrm{irfft}(V) ,
+
+    \Psi^{\mathrm{full}}[\mathrm{irfft}, Y](V)_j = \mathrm{rfft}(V)_j,
+
+- gradient over the compressed complex vector
+
+The full complex vector and the compressed complex vector are related by a 
+`decompress` operation, which introduces a factor of 2 to the fourier modes
+with a hermitian conjugate mode.
+
+  .. math::
+
+    \mathrm{decompress}(Y) = Y
+
+    \Psi[\mathrm{decompress}, Y](V)_j = V_j \left\{
+                \begin{matrix}
+                            1 & \mathrm{ if } j = N - j, \\
+                            2 & \mathrm{ if } j \neq N - j
+                \end{matrix} \right. = V_j \mathsf{D}(j, N) .
+
+    \Psi^{\mathrm{compressed}}[\mathrm{irfft}, Y](V)_j
+           = \Psi[\mathrm{decompress}, Y](V)_j
+             \Psi^{\mathrm{full}}[\mathrm{irfft}, Y](V)_j
+           = \mathsf{D}(j, N) \mathrm{rfft}(V)_j,
 
 The complex version of Discrete Fourier Transform is implemented in TensorFlow (GPU only), Theono, and autograd, though
-it appears the version in autograd is incorrect. The real-complex transforms (rfft and irfft)
-are not implemented in any of the packages. We use the real-complex transforms in the particle-mesh solvers
-to properly capture the hermitian property of the fourier modes of the density field, which is a real valued field.
+it appears the version in autograd is incorrect. The real-complex transforms (`rfft` and `irfft`)
+are not implemented in any of the packages, neither is the `decompress` operation
+defined in any of these packages.
 
 Resampling Windows
 ++++++++++++++++++
@@ -302,6 +339,8 @@ It is written as
 
 where :math:`p^i` is the position of `i`-th particle/mesh point and :math:`q^j` is the position
 of `j`-th mesh/particle point; both are usually vectors themselves (the universe has three spatial dimensions).
+:math:`p^i` and :math:`q^i` are themselves vectors with a spatial dimension (we will use
+the integer symbol :math:`a` to index this dimension).
 
 - `paint`: When :math:`p^i` is the position of particles
   and :math:`q^j` is the position of the mesh points,
@@ -317,7 +356,8 @@ cloud-in-cell window, which represents a linear interpolation:
 
     W(x, y) = \prod_{a} (1 - h^{-1}\left|x_a - y_a\right|) ,
 
-for a given size of the window :math:`h`.
+for a given size of the window :math:`h`. We have used :math:`a` as the index of the spatial
+dimensions.
 
 Most windows are seperatable, which means they can be written as a product of
 a scalar function :math:`W_1`,
@@ -343,19 +383,35 @@ We can then write down the gradient-adjoint-dot operator of the window
 
     \Psi[B, \{p, q, A\}]_A(v)_i =  \sum_j W(p^i - q^j) v_j .
 
-The first gradient corresponds to the displacement of the source. The second gradient corresponds to
-the displacment of the destination. The third gradient corresponds to the evolution of the field.
-Usually in a particle mesh simulation, either one of the sources or the destination is a fixed grid, and
-the corresponding gradient vanishes.
+- The first gradient corresponds to the displacement of the source.
 
-They are a bit complicated because we need to loop of the spatial dimension index :math:`a`.
-It is possible to extend these expressions to Smoothed Particle Hydrodynamics if one allows :math:`h` to be a free variable
-as well.
+- The second gradient corresponds to the displacment of the destination.
 
-Unlike the partial support of Fourier Transforms, none of the three packages we surveyed
-(TensorFlow, Theono and autograd) recognizes these resampling window operators.
-Fully implementing these operators will remove the main barrier between a generic AD software
-for our cosmic initial condition problem.
+- The third gradient corresponds to the evolution of the field.
+
+This looks complicated, and it is.
+However, in a particle mesh simulation, more often than not
+either one of the sources or the destination is a fixed grid which does not move.
+In this case :math:`v = 0`, and we do not need to compute the corresponding gradient term.
+
+We also note that it is possible to extend these expressions
+to Smoothed Particle Hydrodynamics (SPH). In SPH, :math:`h` is another free variable. We leave this
+to future work, but note that the symmetric
+property of the hydro-dynamical force kernel may introduce additional complication.
+
+None of the three packages we surveyed
+(TensorFlow, Theono and autograd) recognizes these resampling window operators. 
+The resampling window operators cannot be easily expressed as diagonal matrix operators.
+
+Work in progress
+----------------
+
+We will implement these operators in our cosmological forward modelling software FastPM
+(https://github.com/rainwoodman/fastpm/), where we plan to manually implement the gradients
+with the AD rules.
+
+In a longer term, we would like to implement these operators in a generic AD software to take advantage
+of the automated differentiation in full.
 
 *Acknowledgement*
 
