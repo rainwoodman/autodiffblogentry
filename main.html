@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
 <title>Automatic Differentiation and Cosmology Simulation</title>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <style type="text/css">
 
 /*
@@ -345,18 +345,17 @@ ul.auto-toc {
 <!-- Comment To be published at BIDS blog. -->
 <!-- Build with -->
 <!-- rst2html - -math-output=mathjax main.rst > main.html -->
-<p>One project at <a class="reference external" href="http://bccp.berkley.edu">Berkeley Center for Cosmological Physics</a> is to study the
-recovery the cosmic initial condition from observations of the later time universe.</p>
-<p>Cosmic initial condition is the density fluctuation of the universe about 13.7 billion years ago,
-when the main form of energy in the universe was still dominated by the cosmic microwave background (CMB).
+<p>One project at <a class="reference external" href="http://bccp.berkley.edu">Berkeley Center for Cosmological Physics</a> studies the
+reconstruction of the cosmic initial condition based on observations of the later-time universe.</p>
+<p>The cosmic initial condition is the density fluctuation of the universe about 13.7 billion years ago,
+when the main form of energy in the universe mainly consisted of cosmic microwave background (CMB).
 Due to the finite speed of light, any direct measurements of the <a class="reference external" href="https://en.wikipedia.org/wiki/Cosmic_microwave_background">CMB</a>,
-including space based programs such as Planck, WMAP and COBE, and ground based programs such as ACT-Pole, PolarBear,
-can only observe a thin slice of cosmic initial condition.
-For the rest of Universe, we are only able to observe an evolved state. The close to us, the older the observed Universe
-has grown to.</p>
-<p>The data about the latest universe usually comes as a catalogue of galaxies. (e.g. <a class="reference external" href="https://arxiv.org/abs/1509.08964">Malavasi et al.</a>)
-The slightly older universe was captured by the measurements of Lyman-alpha Forest. (e.g. <a class="reference external" href="https://arxiv.org/abs/1409.5632">Lee et al.</a>.)
-Gravitational lensing measures a projected view along the line of sight direction. (e.g. <a class="reference external" href="https://arxiv.org/abs/1205.1064">Amara et al.</a>)</p>
+including space-based programs, such as Planck, WMAP, and COBE, and ground-based programs, such as ACT-Pole and PolarBear,
+can only observe a thin slice of the cosmic initial condition.
+For the rest of universe, we are only able to observe an evolved state. The closer to us the observed universe is to us physically, the the older it is.</p>
+<p>Data about the latest universe usually comes as a catalogue of galaxies. (e.g., <a class="reference external" href="https://arxiv.org/abs/1509.08964">Malavasi et al.</a>)
+The slightly older universe was captured by the measurements of Lyman-alpha Forest. (e.g., <a class="reference external" href="https://arxiv.org/abs/1409.5632">Lee et al.</a>)
+Gravitational lensing measures a projection along the line of sight (e.g., <a class="reference external" href="https://arxiv.org/abs/1205.1064">Amara et al.</a>).</p>
 <p>The recovery of the full cosmic initial condition is an inversion problem, which reverts the time evolution from the observed
 field <span class="math">\(y\)</span>,</p>
 <div class="math">
@@ -364,10 +363,10 @@ field <span class="math">\(y\)</span>,</p>
 x = S^{-1}(y) ,
 \end{equation*}
 </div>
-<p>where <span class="math">\(x\)</span> is the unknown initial condition, and <span class="math">\(y\)</span> is the observation. <span class="math">\(S\)</span> is the dynamical model
-of the universe. At the resolution we can currently probe, <span class="math">\(S\)</span> is determined mostly by gravity.</p>
-<p>We must realize three difficulties of the problem:</p>
-<p>1. The observation comes with noise; there is also uncertainty in the forward model <span class="math">\(S\)</span>. For a noisy inversion problem,
+<p>where <span class="math">\(x\)</span> is the unknown initial condition, <span class="math">\(y\)</span> is the observation, and <span class="math">\(S\)</span> is the dynamical model
+of the universe. At the resolution we can currently probe, <span class="math">\(S\)</span> is mostly determined by gravity.</p>
+<p>There are three difficulties in this problem:</p>
+<p>1. The observation comes with noise; there is also uncertainty in the forward model <span class="math">\(S\)</span>. A noisy inversion problem
 can be written as an optimization problem,</p>
 <div class="math">
 \begin{equation*}
@@ -377,62 +376,62 @@ can be written as an optimization problem,</p>
 <p>where <span class="math">\(\sigma\)</span> quantifies the level of noise.</p>
 <p>The solution <span class="math">\(x=\hat{x}\)</span> is our best estimate of the cosmic initial condition. There are ways of deriving the uncertainty
 of <span class="math">\(\hat{x}\)</span>.</p>
-<p>2. It has a very large dimensionality. <span class="math">\(x\)</span> and <span class="math">\(y\)</span> are fields defined on a 3-dimenional space.
-For example a mesh of <span class="math">\(128^3\)</span> points, the number of elements in the vectors <span class="math">\(x\)</span> and <span class="math">\(y\)</span> become millions.</p>
-<p>3. The model of structure formation (<span class="math">\(S\)</span>) is nonlinear, and becomes non-perturbative quickly as the resolution increases.
-We use ordienary differential equation (ODE) solvers to follow the evolution of the structure.
-A particular simple family of solvers that are frequently used in cosmology are Particle-Mesh solvers.
-We refer the readers to the classical book
-<a class="reference external" href="http://dl.acm.org/citation.cfm?id=62815">Computer Simulation Using Particles</a> by Hockney and Eastwood for further references.
-We therefore a facing a non-linear optimization problem in a high dimensional space.
-Gradient of the objective function <span class="math">\(\chi^2(x)\)</span> is a crucial ingredient for solving such problems.</p>
-<p>There are generic software tools (Automatic Differentiation software) to automatically evaluate the gradient of any function.
+<p>2. It has very large dimensionality. <span class="math">\(x\)</span> and <span class="math">\(y\)</span> are fields defined in a three-dimenional space.
+For example, for a mesh of <span class="math">\(128^3\)</span> points, the number of elements in the vectors <span class="math">\(x\)</span> and <span class="math">\(y\)</span> is in the millions.</p>
+<p>3. The model of structure formation (<span class="math">\(S\)</span>) is nonlinear and becomes non-perturbative quickly as the resolution increases.
+We use ordinary differential equation (ODE) solvers to follow the evolution of the structure.
+A particularly simple family of solvers that is frequently used in cosmology are particle-mesh solvers.
+We refer readers to the classical book
+<a class="reference external" href="http://dl.acm.org/citation.cfm?id=62815">Computer Simulation Using Particles</a> by Hockney and Eastwood for further reference.
+We are therefore a facing a non-linear optimization problem in a high-dimensional space.
+The gradient of the objective function <span class="math">\(\chi^2(x)\)</span> is a crucial ingredient for solving such a problem.</p>
+<p>There are generic software tools (automatic differentiation software) to automatically evaluate the gradient of any function.
 We were hoping to use these generic software tools in our problem.
-We surveyed three packages, <a class="reference external" href="https://www.tensorflow.org/">Tensorflow</a>, <a class="reference external" href="http://deeplearning.net/software/theano/">Theono</a>,
+We tried three packages, <a class="reference external" href="https://www.tensorflow.org/">Tensorflow</a>, <a class="reference external" href="http://deeplearning.net/software/theano/">Theono</a>,
 and <a class="reference external" href="https://github.com/HIPS/autograd">autograd</a>.
-The landscape was of quite a bit of misery when we try to build a Particle Mesh solver out of these packages:
-we find all three of them lacking the elements to describe our Particle Mesh solver.</p>
-<p>This motivates the writing of this blog.
-We will review the mechanism how automatic differentiation works.
-Next, we will build the gradient operators that are useful in a Particle-Mesh solver.
+We encountered quite a few problems when we tried to build a particle-mesh solver with these packages:
+we found that all three of them lack the elements needed to describe our particle-mesh solver.</p>
+<p>This motivated the writing of this blog.
+We will review how automatic differentiation (AD) works.
+Next, we will build gradient operators that are useful in a particle-mesh solver.
 In the long term, we would like to patch the generic AD software packages to include these operators.</p>
 <div class="section" id="automatic-differentiation">
 <h1>Automatic Differentiation</h1>
-<p>Automatic Differentiation (AD) is a relatively new technology to the audience in astronomy and cosmology inspite of
-the growing popularity in machine learning. At the <a class="reference external" href="http://astrohackweek.org/2016/">2016 AstroHackWeek</a>,
-the attendees organized a session to explore the landscape of automatic differentiation software. One idea was that
-we shall try to AD more in astronomy if we are to define the boundary of the technology.
-This blog was partially inspired by the discussion amongst the astronomers during that session.</p>
-<p>The recent tide of popularity of AD is partially due to the movement of deep learning.
-Training large neural networks demand effective and efficient optimization algorithms, because
-the dimenionality of the problem (number of neural nodes) is large.
-Popular optimization algorithms (e.g. Gradient Descent -- the only embeded optimizer in TensorFlow, or L-BFGS which we use
-in the cosmic initial condition problem) demands the evaluation of the gradient.</p>
-<p>A large landscape of AD beyond deep learning is in the context of inversion of dynamical systems.
-Many physical problems can be written as solutions of a time evolution of differential equations.
+<p>AD is a relatively new technology in astronomy and cosmology despite
+its growing popularity in machine learning. At the <a class="reference external" href="http://astrohackweek.org/2016/">2016 AstroHackWeek</a>,
+the attendees organized a session to explore the AD software landscape. One idea was that
+we should try to use AD more in astronomy if we are to define the boundary of the technology.
+This blog was partially inspired by the discussion among the astronomers during that session.</p>
+<p>The recent popularity of AD is partially due to the movement of deep learning.
+Training large neural networks demands effective and efficient optimization algorithms because
+the dimensionality of the problem (number of neural nodes) is large.
+Popular optimization algorithms (e.g., gradient descent -- the only embedded optimizer in TensorFlow or L-BFGS, which we use
+in the cosmic initial condition problem) demands evaluation of the gradient.</p>
+<p>A large portion of AD lies beyond deep learning in the context of inversion of dynamical systems.
+Many physical problems can be written as solutions to a set of time-dependent differential equations.
 The solution to these equations can be written as the product of a sequence of evolution operators
 (nested function evaluations).
-AD can be applied to evaluate the gradient of the final condition regarding to the intial condition, which is also called
+AD can be applied to evaluate the gradient of the final condition in respect to the intial condition, which is also called
 <cite>sensitivity analysis</cite> in this context.
 Due to the complicity of the problem, AD in inversion problems is
-usually tailored to a specialized form that suits to the particular dynamical system.
-(c.f. <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/">Sengupta et al.</a>).
-In these problems, however, a generic AD software is not used,
-because it usually does not implement the necessary operators, and it also fails to recognize shortcuts, or optimizations in
+usually tailored to a specialized form that suits the particular dynamical system
+(cf. <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4120812/">Sengupta et al.</a>).
+In these problems, however, generic AD software cannot used
+because such software usually does not implement the necessary operators and also fail to recognize shortcuts, or optimizations, in
 the evaluation sequence.</p>
-<p>We indeed ran into these problems as we attempt to apply generic AD software to particle-mesh simulations. If we believe optimization
-are secondary, the the first problem becomes the primary barrier. For particle-mesh simulations, we need the AD software to
-support discrete fourier transforms and window resampling operations. We will try to bridge the gap, but shall first revisit
+<p>We ran into these problems when we attempted to apply generic AD software to particle-mesh simulations. If we believe optimization
+is secondary, the the first problem becomes the primary barrier. For particle-mesh simulations, we need the AD software to
+support Discrete Fourier Transforms and window resampling operations. We will try to bridge the gap but will first revisit
 what AD actually does.</p>
 </div>
 <div class="section" id="de-mysterifying-ad">
-<h1>De-mysterifying AD</h1>
+<h1>De-Mysterifying AD</h1>
 <div class="figure align-right">
 <object data="autodiff-func.svg" style="width: 50%;" type="image/svg+xml">
 autodiff-func.svg</object>
 <p class="caption">Figure: Illustration of the evaluation sequences of automatic differentiation.</p>
 </div>
-<p>The basics of AD start from the chain-rule of differentiation, which claims that</p>
+<p>The basics of AD start from the chain rule of differentiation, which claims the following:</p>
 <blockquote>
 <p>If we have two functions <span class="math">\(y=f(x)\)</span> and <span class="math">\(z=g(y)=g(f(x))\)</span>, then</p>
 <div class="math">
@@ -442,19 +441,19 @@ autodiff-func.svg</object>
 \end{equation*}
 </div>
 </blockquote>
-<p>We see that the chain-rule converts gradient of nested functions to a sequence of tensor products.</p>
-<p>Let's now consider a scalar that comes from nested evaluation of <span class="math">\(n\)</span> functions,</p>
+<p>We see that the chain rule converts a gradient of nested functions to a sequence of tensor products.</p>
+<p>Let's now consider a scalar that comes from the nested evaluation of <span class="math">\(n\)</span> functions,</p>
 <div class="math">
 \begin{equation*}
 F(x) := \left(f^1 \odot \cdots \odot f^n \right)(x) = f^n(f^{n-1}(\cdots (f^1(x)) \cdots ))) .
 \end{equation*}
 </div>
-<p><span class="math">\(f^i\)</span> maps to concepts in real world problems:</p>
+<p><span class="math">\(f^i\)</span> maps to concepts in real-world problems:</p>
 <ul class="simple">
-<li>as a time step in a dynamical system; then the nested functions are simply evolving the dyanmical system forward in time.</li>
-<li>as a layer in the neural network; then the nested functions are simply stacking layers of neural network.</li>
+<li>as a time step in a dynamical system, the nested functions are simply moving the dyanmical system forward in time.</li>
+<li>as a layer in the neural network, the nested functions are simply stacking layers of the neural network.</li>
 </ul>
-<p>We shall name the intemediate variables <span class="math">\(r^{(i)}\)</span>,</p>
+<p>We will name the intemediate variables <span class="math">\(r^{(i)}\)</span>,</p>
 <div class="math">
 \begin{equation*}
 r^n = F(x) ,
@@ -471,63 +470,63 @@ r^0 = x .
 \end{equation*}
 </div>
 <p>This function is illustrated in the <cite>function evaluation</cite> section of the figure.</p>
-<p>Applying chain rule to <span class="math">\(\nabla F\)</span>, we find that</p>
+<p>Applying the chain rule to <span class="math">\(\nabla F\)</span>, we find that</p>
 <div class="math">
 \begin{equation*}
 \nabla_j F = \frac{\partial F}{\partial r^0_j} =
     \left[\prod_{i=1, n} \frac{\partial f^i}{\partial r^{i-1}}\right]_j ,
 \end{equation*}
 </div>
-<p>where <span class="math">\(\prod\)</span> represents tensor product on the corresponding dimension.
-(known as the Einstein summation rule, c.f. <cite>numpy.einsum</cite>)
-An automatic differentation software constructs and evaluates this long tensor product expression for us.</p>
+<p>where <span class="math">\(\prod\)</span> represents a tensor product on the corresponding dimension
+(known as the Einstein summation rule, cf. <cite>numpy.einsum</cite>).
+AD software constructs and evaluates this long tensor product expression for us.</p>
 <p>There are many ways to evaluate this expression.
-We will look at two popular schemes, the <cite>reverse accumulation/backpropagation</cite> scheme and
-the <cite>forward accumulation</cite> scheme. Both are described in the Wikipedia entry of <a class="reference external" href="https://en.wikipedia.org/wiki/Automatic_differentiation">Automatic Differentiation</a>.</p>
-<p>Here will will motivate these schemes by defining two different types of functional operators.</p>
+We will look at two popular schemes: the <cite>reverse-accumulation/back-propagation</cite> scheme and
+the <cite>forward-accumulation</cite> scheme. Both are described in the Wikipedia entry for <a class="reference external" href="https://en.wikipedia.org/wiki/Automatic_differentiation">AD</a>.</p>
+<p>Here, we will motivate these schemes by defining two different types of functional operators.</p>
 <div class="section" id="backward">
 <h2>Backward</h2>
-<p>For a function <cite>f</cite> defined on the domain <span class="math">\(f : X \to Y\)</span>, we define gradient-adjoint-dot operator as</p>
+<p>For a function <cite>f</cite> defined on the domain <span class="math">\(f : X \to Y\)</span>, we define the gradient-adjoint-dot operator as</p>
 <div class="math">
 \begin{equation*}
 \Psi[f, x](v) = \sum_i v_i \frac{\partial f_i}{\partial x_j} .
 \end{equation*}
 </div>
 <p>It is implied that <span class="math">\(v \in Y\)</span> and the domain of <span class="math">\(\Psi[f, x]\)</span> is <span class="math">\(\Psi[f, x] : Y \to X\)</span>.</p>
-<p>Notice how the summation eliminate the indexing of the function; while the indexing for the gradient remains.</p>
-<p>Using <span class="math">\(\Psi^i = \Psi[f^i, r^i]\)</span>, the chain-rule above can be reorganized as a sequence of function evaluations
+<p>Notice how the summation eliminates the indexing of the function, while the indexing for the gradient remains.</p>
+<p>Using <span class="math">\(\Psi^i = \Psi[f^i, r^i]\)</span>, the chain rule above can be re-organized as a sequence of function evaluations
 of <span class="math">\(\Psi^i\)</span></p>
 <div class="math">
 \begin{equation*}
 \nabla F_j = (\Psi^1 \cdots (\Psi^{n-1}(\nabla_j f^n))\cdots)_j .
 \end{equation*}
 </div>
-<p>The process is illustrated in Section <cite>backpropagation</cite> of the figure.
-We see that at each evaluation of <span class="math">\(\Psi^i\)</span>, we
+<p>The process is illustrated in the <cite>back-propagation`section of the figure.
+We see that for each evaluation of :math:</cite>Psi^i`, we
 obtain the gradient of <span class="math">\(F\)</span> relative to the intermiedate variable <span class="math">\(r^i\)</span>, <span class="math">\(\nabla_{r^i} F\)</span>. Because we apply
 <span class="math">\(\Psi^i\)</span> in the decreasing order of <span class="math">\(i\)</span>,
-this method is called the <cite>backward propagation</cite> or <cite>reverse accumulation</cite>.</p>
-<p>This method is also called <cite>adjoint method</cite> in the analysis of dynamical systems, because the summation is along the <cite>adjoint</cite>
+this method is called <cite>backward propagation</cite> or <cite>reverse accumulation</cite>.</p>
+<p>This method is also called the <cite>adjoint method</cite> in the analysis of dynamical systems because the summation is along the <cite>adjoint</cite>
 index of the jacobian <span class="math">\(\frac{\partial f_i}{\partial x_j}\)</span>.
-The main drawback of backpropagation is
-that it requires one to store the intemediate results along the function evaluation in order to compute the
-gradient-adjoint-dot operators: <span class="math">\(\Psi^i\)</span> depends on <span class="math">\(r^i\)</span> which needs to be evaluated before the backpropagation.
-However, the method gives the full gradient against the free variables <cite>x_j</cite> after one full accumulation, making it at advantage
-in certain problems than the <cite>forward accumulation</cite> we will describe next.</p>
-<p>In all three automatic differentiation software packages we checked (TensorFlow, Theono, or autograd), a method of
-looking up the the gradient-adjoint-dot operator is provided; either as a member of the operator entity or as an external
+The main drawback of back propagation is
+that it requires one to store the intermediate results along with the function evaluation in order to compute the
+gradient-adjoint-dot operators <span class="math">\(\Psi^i\)</span> depends on <span class="math">\(r^i\)</span>, which needs to be evaluated before the back propagation.
+However, the method gives the full gradient against the free variables <cite>x_j</cite> after one full accumulation, making it at advantageous
+for certain problems compared to <cite>forward accumulation</cite>, which we describe next.</p>
+<p>In all three AD software packages we checked (TensorFlow, Theono, or autograd), a method to
+look up the the gradient-adjoint-dot operator is provided, either as a member of the operator entity or as an external
 dictionary.</p>
 </div>
 <div class="section" id="forward">
 <h2>Forward</h2>
-<p>In contrast, we can define an gradient-dot operator,</p>
+<p>In contrast, we can define a gradient-dot-operator as</p>
 <div class="math">
 \begin{equation*}
 \Gamma[f, x](u) = \sum_j \frac{\partial f_i}{\partial x_j} u_{j} .
 \end{equation*}
 </div>
 <p>It is implied that <span class="math">\(u \in X\)</span> and the domain of <span class="math">\(\Gamma[f, x]\)</span> is <span class="math">\(\Gamma[f, x] : X \to Y\)</span>.</p>
-<p>Notice the summation is over the indexing of the free variable, <span class="math">\(x_j\)</span>. Hence the name does not have <cite>adjoint</cite> like the previous
+<p>Notice the summation is over the indexing of the free variable, <span class="math">\(x_j\)</span>. Hence, the name does not have <cite>adjoint</cite> like the previous
 operator. One way to think of <span class="math">\(\Gamma[f]\)</span> is that it rotates <span class="math">\(u\)</span> by the jacobian.</p>
 <p>With the gradient-dot operator of <span class="math">\(\Gamma^i = \Gamma[f^i, r^i]\)</span>, we can write down the <cite>forward accumulation</cite> rule of AD:</p>
 <div class="math">
@@ -535,33 +534,33 @@ operator. One way to think of <span class="math">\(\Gamma[f]\)</span> is that it
 \sum_j \nabla_j F u_j = \Gamma^n (\cdots (\Gamma^1(u)) \cdots) .
 \end{equation*}
 </div>
-<p>This process is illustrated in the <cite>Forward accumulation</cite> section of the figure.
-We see that at each evaluation of <span class="math">\(\Gamma^i\)</span>, we obtain the directional
+<p>This process is illustrated in the section on <cite>forward accumulation</cite> in the figure.
+We see that for each evaluation of <span class="math">\(\Gamma^i\)</span>, we obtain the directional
 derivative of <span class="math">\(r^i\)</span> along <span class="math">\(u\)</span>, <span class="math">\(\sum \frac{\partial r^i}{\partial x_j} u_j\)</span>. The accumulation goes along the increasing
 order of <span class="math">\(i\)</span>, making the name <cite>forward accumulation</cite> a suitable one.</p>
 <p>The advantage of forward accumulation is that one can evaluate the gradient as the function <span class="math">\(F\)</span> is evaluated, and no intemediate
-results need to be saved: we see that when <span class="math">\(\Gamma^i\)</span> is requests, <span class="math">\(r_i\)</span> is already evaluated.
-This is clearly a useful feature when the number of nesting (layers of neural network or number of time steps)
+results need to be saved: we see that when <span class="math">\(\Gamma^i\)</span> is requested, <span class="math">\(r_i\)</span> is already evaluated.
+This is clearly a useful feature when nesting (layers of neural networks or number of time steps)
 is high.
-However, the cost is we can only obtained a directional derivative. In some applications it is useful (e.g. computing Hession for Newton-CG or trust-region
-Newton-CG methods). When the full gradient is desired, one need to run
-the <cite>forward accumulation</cite> many times - as many as the number of the free parameters, which could be prohibatively high.</p>
+However, the cost is we can only obtain a directional derivative. For some applications, this is useful (e.g., computing Hession for Newton-CG or trust-region
+Newton-CG methods). When the full gradient is desired, one needd to run
+the <cite>forward accumulation</cite> many times - as many times as the number of free parameters, which could be prohibatively high.</p>
 <p>We shall note that this method is also called <cite>forward senstivity</cite> in the analysis of dynamical systems.</p>
 </div>
 </div>
 <div class="section" id="two-useful-operators-in-particle-mesh-solvers">
 <h1>Two Useful Operators in Particle-Mesh solvers</h1>
-<p>In this section we write down two families of gradient-adjoint-dot operators that are useful in AD of cosmological simulations.
-The first family is the Discrete Fourier transforms. The second family is the resampling windows. At the time of this blog,
-no popular AD software implement all of these gradient-adjoint-dot operators. We will list them in this section for further
-references.</p>
+<p>In this section, we present two families of gradient-adjoint-dot operators that are useful for the AD of cosmological simulations.
+The first family is the Discrete Fourier Transforms, and the second family is resampling windows. At the time of this blog,
+no popular AD software implements all of these gradient-adjoint-dot operators. We will list them in this section for further
+reference.</p>
 <div class="section" id="discrete-fourier-transform">
 <h2>Discrete Fourier Transform</h2>
-<p>Discrete Fourier transform is the discretized version of Fourier Transform.
+<p>Discrete Fourier Transform is the discretized version of Fourier Transform.
 It is a commonly used density matrix operator in the modelling of physical process.
 This is mostly because finite differentiation can be written as multiplication
 in the spectrum space.</p>
-<p>The gradients involve complex numbers which are tuples of two real numbes. We therefore do not include a proof
+<p>The gradients involve complex numbers, which are tuples of two real numbes. We therefore do not include a proof
 in this blog. The gradient that is conveniently used is</p>
 <div class="math">
 \begin{equation*}
@@ -588,21 +587,35 @@ is its dual transform. Specifically,</p>
 </div>
 <div class="math">
 \begin{equation*}
-\Psi[\mathrm{irfft}, Y](V)_j = \left\{
+\Psi[\mathrm{irfft}, Y](V)_j = \mathrm{rfft}(V)_j,
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\Psi[\mathrm{decompress}, Y](V)_j = \left\{
             \begin{matrix}
-                    \mathrm{rfft}(V)_j &amp; \mathrm{ if } j = N - j, \\
-                        2 \mathrm{rfft}(V) &amp; \mathrm{ if } j \neq N - j.
+                    V_j &amp; \mathrm{ if } j = N - j, \\
+                        2 V &amp; \mathrm{ if } j \neq N - j.
             \end{matrix} \right.
 \end{equation*}
 </div>
 <p>where <span class="math">\(\Psi\)</span> is the gradient-adjoint-dot operator. Notably, the free variables <span class="math">\(X\)</span> and <span class="math">\(Y\)</span>
 do not show up in the final expressions.
-This is because Fourier transforms are linear operators. We also notice that the gradient of
+This is because Fourier transforms are linear operators.</p>
+<p>The trickier part is the new <cite>compress</cite> operator. It applies to the real fourier transforms, where
+only the half of the complex vectors are stored (the other half is just the Hermitian conjugates).
+In this case, we have two types of complex vectors,</p>
+<ul class="simple">
+<li>Complex vectors : where the entire vector represents the full set of</li>
+<li>Free complex vectors : where each element represents a free complex number. Changing most of these
+numbers results a change of two complex modes in the corresponding Compressed complex vector.</li>
+</ul>
+<p>We also notice that the gradient of
 complex to real transform has an additional factor of 2 for most modes.
 This is because the hermitian conjugate frequency mode also contributes to the gradient.</p>
-<p>The complex version of Discrete Fourier Transform is implemented in TensorFlow (GPU only), Theono, and autograd. Though
+<p>The complex version of Discrete Fourier Transform is implemented in TensorFlow (GPU only), Theono, and autograd, though
 it appears the version in autograd is incorrect. The real-complex transforms (rfft and irfft)
-are not implemented in any of the packages. We use the real-complex transforms in the particle-mesh solvers,
+are not implemented in any of the packages. We use the real-complex transforms in the particle-mesh solvers
 to properly capture the hermitian property of the fourier modes of the density field, which is a real valued field.</p>
 </div>
 <div class="section" id="resampling-windows">
@@ -615,9 +628,9 @@ B_j(p, q, A) = \sum_i W(p^i, q^j) A_i ,
 \end{equation*}
 </div>
 <p>where <span class="math">\(p^i\)</span> is the position of <cite>i</cite>-th particle/mesh point and <span class="math">\(q^j\)</span> is the position
-of <cite>j</cite>-th mesh/particle point; both are usually vectors themselves (the universe has 3 spatial dimensions).</p>
+of <cite>j</cite>-th mesh/particle point; both are usually vectors themselves (the universe has three spatial dimensions).</p>
 <ul class="simple">
-<li><cite>paint</cite>: When <span class="math">\(p^i\)</span> is the position of particles,
+<li><cite>paint</cite>: When <span class="math">\(p^i\)</span> is the position of particles
 and <span class="math">\(q^j\)</span> is the position of the mesh points,
 the operation is called a <cite>paint</cite>.</li>
 <li><cite>readout</cite>: When <span class="math">\(p^i\)</span> is the position of the mesh points and
@@ -663,15 +676,15 @@ W_1^\prime(\left|x_a - y_a\right|) \prod_{b \neq a} W1(\left|x_b - y_b\right|) .
 </div>
 <p>The first gradient corresponds to the displacement of the source. The second gradient corresponds to
 the displacment of the destination. The third gradient corresponds to the evolution of the field.
-Usually in a particle mesh simulation, either one of the source and the destination is a fixed grid, and
+Usually in a particle mesh simulation, either one of the sources or the destination is a fixed grid, and
 the corresponding gradient vanishes.</p>
 <p>They are a bit complicated because we need to loop of the spatial dimension index <span class="math">\(a\)</span>.
-It is possible to extend these expressions to Smoothed Particle Hydrodynamics if one allow <span class="math">\(h\)</span> to be a free variable
+It is possible to extend these expressions to Smoothed Particle Hydrodynamics if one allows <span class="math">\(h\)</span> to be a free variable
 as well.</p>
 <p>Unlike the partial support of Fourier Transforms, none of the three packages we surveyed
 (TensorFlow, Theono and autograd) recognizes these resampling window operators.
 Fully implementing these operators will remove the main barrier between a generic AD software
-our cosmic initial condition problem.</p>
+for our cosmic initial condition problem.</p>
 <p><em>Acknowledgement</em></p>
 <p>The author received help on the algebra from Chirag Modi, Grigor Aslanyan, and Yin Li from Berkeley Center for Cosmological Physics.
 The author received help on writing from Ali Ferguson at Berkeley Institute for Data Science.</p>
